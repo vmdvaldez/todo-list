@@ -60,3 +60,19 @@ li {
     background-color: red;
     padding: 5px 15px 5px 10px;
 }
+
+form {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+.form-buttons {
+    display: flex;
+    grid-row: 2 / 3;
+}
+
+.form-buttons button{
+    flex: 1;
+}

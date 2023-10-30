@@ -30,7 +30,53 @@ const addTask = document.getElementById('add-task');
 
 
 
-// addBtn.addEventListener('click', () => {
-        //TODO: display none
-//     console.log(taskLists.insertBefore(p, addBtn.parentElement));
-// });
+addTask.addEventListener('click', () => {
+    addTask.style.display = 'none';
+    
+    const addForm = () => {
+        const form = document.createElement('form');
+        form.id = 'form-add';
+
+        const div = document.createElement('div');
+        div.classList.add('form-buttons');
+        const btn = (text, type) =>{
+           const b = document.createElement('button');
+           b.innerText = text;
+           b.type = type;
+           return b;
+        } 
+
+        const addBtn = btn('ADD', 'submit');
+        const cancelBtn = btn('CANCEL', 'button');
+
+        div.appendChild(addBtn);
+        div.appendChild(cancelBtn);
+        form.appendChild(document.createElement('input'));
+        form.appendChild(div);
+
+        form.addEventListener('submit', (e)=>{
+            e.preventDefault();
+            const input = document.querySelector('#form-add input');
+
+            //Backlogic TODO:
+
+            //DOMlogic
+            form.remove();
+            const newTask = document.createElement('li');
+            newTask.innerText = input.value;
+            taskLists.insertBefore(newTask, addTask);
+            addTask.style.display = 'list-item';
+            
+        })
+
+        cancelBtn.addEventListener('click', ()=>{
+            form.remove();
+            addTask.style.display = 'list-item';
+        });
+
+        return form;
+    }
+    
+    taskLists.insertBefore(addForm(), addTask);
+});
+
