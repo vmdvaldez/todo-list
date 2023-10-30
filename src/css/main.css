@@ -1,0 +1,62 @@
+body {
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+
+    height: 100vh;
+    width: 100vw;
+}
+
+#main-grid {
+    height: 100%;
+    width: 100%;
+
+    display: grid;
+    grid-template-rows: 80px 4fr 80px 40px;
+    grid-template-columns: 1fr 6fr;
+
+    grid-template-areas: 
+    'header header'
+    'nav content'
+    'nav content'
+    'footer footer';
+}
+
+header {
+    grid-area: header;
+    background-color: grey;
+}
+
+nav {
+    background-color: aliceblue;
+    grid-area: nav;
+}
+
+#task{
+    grid-area: content;
+    background-color: black;
+}
+
+footer {
+    grid-area: footer;
+    background-color: grey;
+}
+
+
+#add-task {
+    cursor: pointer;
+}
+
+ul {
+    list-style: none;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+li {
+    background-color: red;
+    padding: 5px 15px 5px 10px;
+}
