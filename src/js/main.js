@@ -24,16 +24,13 @@ function Task(name, date){
         setPriority};
 }
 
-const taskLists = document.getElementById('task-lists');
-const addTask = document.getElementById('add-task');
-
-
-
-
-addTask.addEventListener('click', () => {
-    addTask.style.display = 'none';
+const navBarManager = (() =>{
+    const taskLists = document.getElementById('task-lists');
+    const addTask = document.getElementById('add-task');
     
-    const addForm = () => {
+    function hideAddTask() {addTask.style.display = 'none'};
+    function showAddTask() {addTask.style.display = 'list-item'};
+    function createForm(){
         const form = document.createElement('form');
         form.id = 'form-add';
 
@@ -54,21 +51,6 @@ addTask.addEventListener('click', () => {
         form.appendChild(document.createElement('input'));
         form.appendChild(div);
 
-        form.addEventListener('submit', (e)=>{
-            e.preventDefault();
-            const input = document.querySelector('#form-add input');
-
-            //Backlogic TODO:
-
-            //DOMlogic
-            form.remove();
-            const newTask = document.createElement('li');
-            newTask.innerText = input.value;
-            taskLists.insertBefore(newTask, addTask);
-            addTask.style.display = 'list-item';
-            
-        })
-
         cancelBtn.addEventListener('click', ()=>{
             form.remove();
             addTask.style.display = 'list-item';
@@ -76,7 +58,32 @@ addTask.addEventListener('click', () => {
 
         return form;
     }
-    
-    taskLists.insertBefore(addForm(), addTask);
+    function insertBeforeAddTask(elem){taskLists.insertBefore(elem, addTask);}
+    function createNewTask(text){
+        const li = document.createElement('li');
+        li.innerText = text;
+        taskLists.insertBefore(li, addTask);
+    }
+
+    return {hideAddTask, showAddTask, createForm, insertBeforeAddTask, createNewTask};
+})();
+
+const addTask = document.getElementById('add-task');
+addTask.addEventListener('click', () => {
+    navBarManager.hideAddTask();
+    const form = navBarManager.createForm();
+
+    form.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const input = document.querySelector('#form-add input');
+
+        //Backlogic TODO:
+
+        //DOMlogic
+        form.remove();
+        navBarManager.createNewTask(input.value);
+        navBarManager.showAddTask();
+    });
+    navBarManager.insertBeforeAddTask(form);
 });
 
