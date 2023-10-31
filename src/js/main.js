@@ -1,27 +1,64 @@
-function Task(name, date){
-    this.name = name;
-    this.date = date;
-    this.priority = -1;
+taskList = {};
 
-    const getName = () => {this.name};
-    const changeName = (n) => {this.name = n};
-    const getDate = () => {this.date};
-    const changeDate = (d) => {this.date = d};
-    const getDescription = () => { this.description;}
-    const setDescription = (desc) =>{this.description = desc;};
-    const setPriority = (p) => {
-        let priority = parseInt(p);
-        if(priority === NaN){
+class SubTask{
+    #name;
+    #id;
+
+    constructor(name, id){
+        this.#name = name;
+        this.#id = id;
+    }
+
+    get name(){return this.#name};
+    set name(n){this.#name = n};
+}
+
+class Task{
+    #name; 
+    #date; 
+    #priority; 
+    #id;
+    #description;
+    #subTasks={};
+    #subTaskId = 0;
+    static id = 0;
+
+    constructor(name){
+        this.#name = name;
+        this.#priority = -1;
+        this.#id = Task.id;
+        this.#description = '';
+        Task.id ++;
+    }
+
+    // Task setters and getters
+    get name(){return this.#name};
+    set name(n){this.#name = n};
+    get date(){return this.#date};
+    set date(d){this.#date = d};
+    get desc(){return this.#description;}
+    set desc(desc){this.#description = desc;};
+    set priority(p){
+        let prio = parseInt(p);
+        if(prio === NaN){
             console.log("Error: Not valid priority value");
             return;
         }
-        
-        this.priority = priority;
+        this.#priority = prio;
     };
+    get priority(){return this.#priority};
+    get id(){return this.#id};
+    set id(id){this.#id = id};
 
-    return {getName, changeName, getDate, 
-        changeDate, getDescription, setDescription,
-        setPriority};
+    // subTask setters and getter
+    addSubTask(taskName) {
+        this.#subTasks[`${this.#subTaskId}`] = new SubTask(taskName, this.#subTaskId);
+    }
+
+    removeSubTask(taskID) {
+        delete this.#subTasks[`${taskID}`];
+    }
+
 }
 
 const navBarManager = (() =>{
@@ -75,13 +112,22 @@ addTask.addEventListener('click', () => {
 
     form.addEventListener('submit', (e)=>{
         e.preventDefault();
-        const input = document.querySelector('#form-add input');
+        const taskName = document.querySelector('#form-add input').value;
 
         //Backlogic TODO:
+        const t = new Task(taskName);
+        taskList[t.id] = t;
+        taskList[t.id].addSubTask('task0');
+        taskList[t.id].addSubTask('task1');
+        console.log(taskList);
+
+        taskList[t.id].removeSubTask(0);
+        console.log("AFTER");
+        console.log(taskList);
 
         //DOMlogic
         form.remove();
-        navBarManager.createNewTask(input.value);
+        navBarManager.createNewTask(taskName);
         navBarManager.showAddTask();
     });
     navBarManager.insertBeforeAddTask(form);
