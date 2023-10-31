@@ -11,6 +11,7 @@ class SubTask{
 
     get name(){return this.#name};
     set name(n){this.#name = n};
+    get id(){return this.#id};
 }
 
 class Task{
@@ -50,9 +51,12 @@ class Task{
     get id(){return this.#id};
     set id(id){this.#id = id};
 
-    // subTask setters and getter
+    // subTask setters and getter and helpers
+    get subTasks(){return this.#subTasks};
+
     addSubTask(taskName) {
         this.#subTasks[`${this.#subTaskId}`] = new SubTask(taskName, this.#subTaskId);
+        this.#subTaskId++;
     }
 
     removeSubTask(taskID) {
@@ -73,6 +77,7 @@ const navBarManager = (() =>{
 
         const div = document.createElement('div');
         div.classList.add('form-buttons');
+        
         const btn = (text, type) =>{
            const b = document.createElement('button');
            b.innerText = text;
@@ -83,9 +88,15 @@ const navBarManager = (() =>{
         const addBtn = btn('ADD', 'submit');
         const cancelBtn = btn('CANCEL', 'button');
 
+        const input = document.createElement('input');
+        input.minLength = 1;
+        input.maxLength = 15;
+        input.placeholder = "Task Name";
+        input.required = true;
+
         div.appendChild(addBtn);
         div.appendChild(cancelBtn);
-        form.appendChild(document.createElement('input'));
+        form.appendChild(input);
         form.appendChild(div);
 
         cancelBtn.addEventListener('click', ()=>{
@@ -96,13 +107,49 @@ const navBarManager = (() =>{
         return form;
     }
     function insertBeforeAddTask(elem){taskLists.insertBefore(elem, addTask);}
-    function createNewTask(text){
+    function createNewTask(text, id){
         const li = document.createElement('li');
+        li.classList.add('task');
+        li.dataset.taskid = id;
         li.innerText = text;
         taskLists.insertBefore(li, addTask);
+        return li;
     }
 
     return {hideAddTask, showAddTask, createForm, insertBeforeAddTask, createNewTask};
+})();
+
+const taskContentManager = (() =>{
+    const divTask = document.getElementById('task');
+
+    function clearTaskWindow(){divTask.innerText=''};
+
+    function displayTask(task){
+        const title = document.createElement('div');
+        title.classList.add('task-title');
+        title.innerText = task.name;
+
+
+        const ul = document.createElement('ul');
+
+        const li = (t)=>{
+            const li = document.createElement('li');
+            console.log(t);
+            li.innerText = t.name;
+            li.dataset.subclassid = t.id;
+            return li;
+        };
+        
+        const subTasks = task.subTasks;
+        for (t in subTasks){
+            ul.appendChild(li(subTasks[t]));
+        }
+
+        divTask.appendChild(title);
+        divTask.appendChild(ul);
+    }
+
+    return {displayTask, clearTaskWindow};
 })();
 
 const addTask = document.getElementById('add-task');
@@ -113,22 +160,29 @@ addTask.addEventListener('click', () => {
     form.addEventListener('submit', (e)=>{
         e.preventDefault();
         const taskName = document.querySelector('#form-add input').value;
+        const t = new Task(taskName);
+        t.addSubTask('aasdasd');
+        t.addSubTask('aasdasd1');
+        t.addSubTask('aasdasd512');
+        t.addSubTask('aasdasd12312');
 
         //Backlogic TODO:
-        const t = new Task(taskName);
         taskList[t.id] = t;
-        taskList[t.id].addSubTask('task0');
-        taskList[t.id].addSubTask('task1');
-        console.log(taskList);
-
-        taskList[t.id].removeSubTask(0);
-        console.log("AFTER");
-        console.log(taskList);
 
         //DOMlogic
         form.remove();
-        navBarManager.createNewTask(taskName);
+        const task = navBarManager.createNewTask(t.name, t.id);
         navBarManager.showAddTask();
+
+
+        task.addEventListener('click',()=>{
+            const active = document.querySelector('.active');
+            if (active === task) return;
+            if (active !== null) active.classList.toggle('active');
+            taskContentManager.clearTaskWindow();
+            taskContentManager.displayTask(t);
+            task.classList.toggle('active');
+        });
     });
     navBarManager.insertBeforeAddTask(form);
 });
