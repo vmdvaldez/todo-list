@@ -22,6 +22,14 @@ class SubTask{
         this.#done = bool;
     }
     get done(){return this.#done};
+
+    stringify(){
+        return JSON.stringify({
+            'id': this.#id,
+            'name': this.#name,
+            'done': this.#done
+        });
+    }
 }
 
 class Task{
@@ -40,6 +48,7 @@ class Task{
         this.#id = Task.id;
         this.#description = '';
         Task.id ++;
+        // ADD static id localStorage?
     }
 
     // Task setters and getters
@@ -75,6 +84,25 @@ class Task{
 
     removeSubTask(stID) {
         delete this.#subTasks[`${stID}`];
+    } 
+
+    stringify(){
+        let subtaskstr = {};
+        
+        for (const i in this.#subTasks){
+            subtaskstr[this.#subTasks[i].id] = this.#subTasks[i].stringify();
+            // console.log(this.#subTasks[i].stringify());
+        }
+        const str = JSON.stringify(
+            {
+                'id': this.#id,
+                'name': this.#name,
+                'subTaskid': this.#subTaskId,
+                'subTasks': subtaskstr
+            }
+            );
+
+        return str;
     }
 
 }
@@ -204,6 +232,7 @@ const taskContentManager = (() =>{
             form.reset();
             form.remove();
             createNewSubTask(st);
+            console.log(x.stringify());
             showAddSubTask();
 
         });
@@ -300,12 +329,13 @@ addTask.addEventListener('click', () => {
         const taskName = document.querySelector('#form-add input').value;
         const t = new Task(taskName);
 
-        taskList[t.id] = t;
+        taskList[t.id] = t;        
 
         form.remove();
         const task = navBarManager.createNewTask(t.name, t.id);
         navBarManager.showAddTask();
 
+        // Display Active Task
         task.firstChild.addEventListener('click',()=>{
             const active = document.querySelector('.active');
             if (active === task) return;
@@ -315,6 +345,7 @@ addTask.addEventListener('click', () => {
             task.classList.toggle('active');
         });
 
+        // Delete Task
         task.lastChild.addEventListener('click', ()=>{
             const taskid = task.dataset.taskid;
             delete taskList[taskid];
@@ -332,4 +363,8 @@ addTask.addEventListener('click', () => {
     - add date functionality
     - strike through when done
     - persistent storage
+        - save to storage
+        - on refresh load up storage and assign it to taskList
+        - assign each task its event listener
+        - stringify
 */
