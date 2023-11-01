@@ -3,15 +3,25 @@ taskList = {};
 class SubTask{
     #name;
     #id;
+    #done;
 
     constructor(name, id){
         this.#name = name;
         this.#id = id;
+        this.#done = false;
     }
 
     get name(){return this.#name};
     set name(n){this.#name = n};
     get id(){return this.#id};
+    set done(bool){
+        if(typeof(bool) !== 'boolean'){
+            console.log("NOT BOOL");
+            return;
+        }
+        this.#done = bool;
+    }
+    get done(){return this.#done};
 }
 
 class Task{
@@ -63,8 +73,8 @@ class Task{
         this.#subTaskId++;
     }
 
-    removeSubTask(taskID) {
-        delete this.#subTasks[`${taskID}`];
+    removeSubTask(stID) {
+        delete this.#subTasks[`${stID}`];
     }
 
 }
@@ -115,13 +125,63 @@ const navBarManager = (() =>{
         const li = document.createElement('li');
         li.classList.add('task');
         li.dataset.taskid = id;
-        li.innerText = text;
+
+        const div = document.createElement('div');
+        div.innerText = text;
+        const btn = document.createElement('button');
+        btn.innerText = 'Remove';
+
+        // li.innerText = text;
+        li.appendChild(div);
+        li.appendChild(btn);
         taskLists.insertBefore(li, addTask);
         return li;
     }
 
     return {hideAddTask, showAddTask, createForm, insertBeforeAddTask, createNewTask};
 })();
+
+
+function createSubTaskLi(st){
+        const li = document.createElement('li');
+        li.classList.add('subtask');
+        // li.innerText = t.name;
+        li.dataset.subtaskid = st.id;
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        if (st.done) checkbox.checked = true;
+
+        checkbox.addEventListener('change',()=>{
+            console.log(checkbox.checked);
+            if(checkbox.checked){
+                st.done = true;
+            }else{
+                st.done = false;
+            }
+        });
+
+        const div = document.createElement('div');
+        div.innerText = st.name;
+        const btn = document.createElement('button');
+        btn.innerText = 'Remove';
+
+        btn.addEventListener('click', ()=>{
+
+            console.log(taskList);
+            const activeTask = document.querySelector('.active');
+            const task = taskList[activeTask.dataset.taskid];
+
+            console.log(taskList);
+            task.removeSubTask(st.id);
+            li.remove();
+        });
+
+        li.appendChild(checkbox);
+        li.appendChild(div);
+        li.appendChild(btn);
+        return li;
+    }
 
 const taskContentManager = (() =>{
     const divTask = document.getElementById('task');
@@ -143,7 +203,7 @@ const taskContentManager = (() =>{
     
             form.reset();
             form.remove();
-            createNewSubTask(st.name, st.id);
+            createNewSubTask(st);
             showAddSubTask();
 
         });
@@ -156,11 +216,8 @@ const taskContentManager = (() =>{
         return li;
     })();
 
-    function createNewSubTask(text, id){
-        const li = document.createElement('li');
-        li.classList.add('subtask');
-        li.dataset.subtaskid = id;
-        li.innerText = text;
+    function createNewSubTask(st){
+        const li = createSubTaskLi(st);
         insertBeforeAddSubTask(li);
         return li;
     };
@@ -174,19 +231,10 @@ const taskContentManager = (() =>{
 
         const ul = document.createElement('ul');
         ul.id = 'subtask-list';
-
-        const li = (t)=>{
-            const li = document.createElement('li');
-            console.log(t);
-            li.classList.add('subtask');
-            li.innerText = t.name;
-            li.dataset.subtaskid = t.id;
-            return li;
-        };
         
         const subTasks = task.subTasks;
         for (t in subTasks){
-            ul.appendChild(li(subTasks[t]));
+            ul.appendChild(createSubTaskLi(subTasks[t]));
         }
 
         ul.appendChild(addSubTask);
@@ -251,10 +299,6 @@ addTask.addEventListener('click', () => {
         e.preventDefault();
         const taskName = document.querySelector('#form-add input').value;
         const t = new Task(taskName);
-        t.addSubTask('aasdasd');
-        t.addSubTask('aasdasd1');
-        t.addSubTask('aasdasd512');
-        t.addSubTask('aasdasd12312');
 
         taskList[t.id] = t;
 
@@ -262,8 +306,7 @@ addTask.addEventListener('click', () => {
         const task = navBarManager.createNewTask(t.name, t.id);
         navBarManager.showAddTask();
 
-
-        task.addEventListener('click',()=>{
+        task.firstChild.addEventListener('click',()=>{
             const active = document.querySelector('.active');
             if (active === task) return;
             if (active !== null) active.classList.toggle('active');
@@ -272,8 +315,21 @@ addTask.addEventListener('click', () => {
             task.classList.toggle('active');
         });
 
+        task.lastChild.addEventListener('click', ()=>{
+            const taskid = task.dataset.taskid;
+            delete taskList[taskid];
+            task.remove();
+            taskContentManager.clearTaskWindow();
+        });
+
 
     });
     navBarManager.insertBeforeAddTask(form);
 });
 
+/* TODOs?:
+    - add priority functionality
+    - add date functionality
+    - strike through when done
+    - persistent storage
+*/
