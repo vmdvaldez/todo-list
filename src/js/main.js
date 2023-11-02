@@ -176,7 +176,10 @@ const navBarManager = (() =>{
         const div = document.createElement('div');
         div.innerText = task.name;
         const btn = document.createElement('button');
-        btn.innerText = 'Remove';
+        const img = document.createElement('img');
+        img.src = `svg/trash.svg`;
+        btn.appendChild(img);
+        // btn.innerText = 'Remove';
 
         // Display Active Task
         div.addEventListener('click',()=>{
@@ -222,26 +225,37 @@ function createSubTaskLi(st){
         // li.innerText = t.name;
         li.dataset.subtaskid = st.id;
 
+
+
+        const div = document.createElement('div');
+        div.innerText = st.name;
+        const btn = document.createElement('button');
+        const img = document.createElement('img');
+        img.src = `svg/trash.svg`;
+        btn.appendChild(img);
+        // btn.innerText = 'Remove';
+
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        if (st.done) checkbox.checked = true;
+        if (st.done){
+            checkbox.checked = true;
+            div.style.textDecoration = 'line-through';
+        }
 
         checkbox.addEventListener('change',()=>{
             const activeTask = document.querySelector('.active');
             const task = taskList[activeTask.dataset.taskid];
             if(checkbox.checked){
+                div.style.textDecoration = 'line-through';
                 st.done = true;
             }else{
                 st.done = false;
+                div.style.textDecoration = 'none';
             }
 
             taskStorage.storeTasktoStorage(task);
         });
 
-        const div = document.createElement('div');
-        div.innerText = st.name;
-        const btn = document.createElement('button');
-        btn.innerText = 'Remove';
 
         btn.addEventListener('click', ()=>{
 

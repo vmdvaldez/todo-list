@@ -48,6 +48,8 @@ nav {
 
 }
 
+
+
 #task{
     grid-area: content;
     background-color: var(--concrete-color);
@@ -57,6 +59,10 @@ nav {
     
     padding: 15px;
     padding-left: 50px;
+}
+
+.subtask input[type=checkbox]{
+    
 }
 
 footer {
@@ -80,6 +86,12 @@ nav li {
 
 nav li:hover {
     background-color: blanchedalmond;
+}
+
+ul li button{
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
 }
 
 
