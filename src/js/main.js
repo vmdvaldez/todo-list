@@ -176,7 +176,7 @@ const navBarManager = (() =>{
         const div = document.createElement('div');
         div.innerText = task.name;
         const btn = document.createElement('button');
-        // btn.innerText = 'Remove';
+        btn.innerText = 'Remove';
 
         // Display Active Task
         div.addEventListener('click',()=>{
