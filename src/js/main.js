@@ -30,6 +30,12 @@ class SubTask{
             'done': this.#done
         });
     }
+
+    restore(id, name, done){
+        this.#id = id;
+        this.#name = name;
+        this.#done = done;
+    }
 }
 
 class Task{
@@ -48,6 +54,7 @@ class Task{
         this.#id = Task.id;
         this.#description = '';
         Task.id ++;
+        taskStorage.storeTaskStaticID();
         // ADD static id localStorage?
     }
 
@@ -105,6 +112,18 @@ class Task{
         return str;
     }
 
+    restore(id, name, subTaskid, sTasks){
+        this.#id = id;
+        this.#name = name;
+        this.#subTaskId = subTaskid;
+
+        for(const k in sTasks){
+            const v = JSON.parse(sTasks[k]);
+            this.subTasks[k] = new SubTask(v['name'], v['id']);
+            this.subTasks[k].restore(v['id'], v['name'], v['done']);
+        }
+    }
+
 }
 
 const navBarManager = (() =>{
@@ -159,7 +178,6 @@ const navBarManager = (() =>{
         const btn = document.createElement('button');
         btn.innerText = 'Remove';
 
-        // li.innerText = text;
         li.appendChild(div);
         li.appendChild(btn);
         taskLists.insertBefore(li, addTask);
@@ -181,12 +199,15 @@ function createSubTaskLi(st){
         if (st.done) checkbox.checked = true;
 
         checkbox.addEventListener('change',()=>{
-            console.log(checkbox.checked);
+            const activeTask = document.querySelector('.active');
+            const task = taskList[activeTask.dataset.taskid];
             if(checkbox.checked){
                 st.done = true;
             }else{
                 st.done = false;
             }
+
+            taskStorage.storeTasktoStorage(task);
         });
 
         const div = document.createElement('div');
@@ -196,12 +217,12 @@ function createSubTaskLi(st){
 
         btn.addEventListener('click', ()=>{
 
-            console.log(taskList);
             const activeTask = document.querySelector('.active');
             const task = taskList[activeTask.dataset.taskid];
 
-            console.log(taskList);
             task.removeSubTask(st.id);
+            taskStorage.storeTasktoStorage(task);
+
             li.remove();
         });
 
@@ -224,15 +245,16 @@ const taskContentManager = (() =>{
             e.preventDefault();
             const task = document.querySelector('.active').dataset.taskid;
             const subTaskName = document.querySelector('#form-addsubtask input').value;
-            const x = taskList[task];
-            x.addSubTask(subTaskName);
+            const t = taskList[task];
+            t.addSubTask(subTaskName);
 
-            const st = x.lastSubTask;
+            taskStorage.storeTasktoStorage(t);
+
+            const st = t.lastSubTask;
     
             form.reset();
             form.remove();
             createNewSubTask(st);
-            console.log(x.stringify());
             showAddSubTask();
 
         });
@@ -329,7 +351,8 @@ addTask.addEventListener('click', () => {
         const taskName = document.querySelector('#form-add input').value;
         const t = new Task(taskName);
 
-        taskList[t.id] = t;        
+        taskList[t.id] = t;
+        taskStorage.storeTasktoStorage(t);
 
         form.remove();
         const task = navBarManager.createNewTask(t.name, t.id);
@@ -348,6 +371,7 @@ addTask.addEventListener('click', () => {
         // Delete Task
         task.lastChild.addEventListener('click', ()=>{
             const taskid = task.dataset.taskid;
+            taskStorage.deleteTaskfromStorage(taskid);
             delete taskList[taskid];
             task.remove();
             taskContentManager.clearTaskWindow();
@@ -357,6 +381,53 @@ addTask.addEventListener('click', () => {
     });
     navBarManager.insertBeforeAddTask(form);
 });
+
+const taskStorage = (() => {
+    const STATICID = 'staticid';
+    
+    const getTask = (taskid) => {
+        return localStorage.getItem(taskid);
+    };
+
+    const storeTasktoStorage = (task) => {
+        localStorage.setItem(task.id, task.stringify());
+    };
+
+    const clearTaskStorage = () => {localStorage.clear()};
+
+    const deleteTaskfromStorage = (taskid)=>{
+        localStorage.removeItem(taskid);
+    };
+
+    const storeTaskStaticID = () => {localStorage.setItem(STATICID, Task.id)};
+    const getTaskStaticID = () => {return localStorage.getItem(STATICID);}
+
+    const populateTaskList = () => {
+        const staticid = parseInt(getTaskStaticID());
+        if (!isNaN(staticid)){
+            Task.id = parseInt(getTaskStaticID());
+        }
+
+        for (let i = 0; i < localStorage.length; i++){
+            const k = localStorage.key(i);
+            if (isNaN(parseInt(k))) continue;
+            
+            const v = JSON.parse(localStorage.getItem(k));
+            taskList[v['id']] = new Task(v['name']);
+
+            const task = taskList[v['id']];
+            task.restore(v['id'],v['name'], v['subTaskid'], v['subTasks']);
+
+            console.log(taskList);
+        }
+    }
+
+    return {getTask, storeTasktoStorage, clearTaskStorage, 
+        deleteTaskfromStorage, storeTaskStaticID,populateTaskList};
+})();
+
+taskStorage.populateTaskList();
+
 
 /* TODOs?:
     - add priority functionality
