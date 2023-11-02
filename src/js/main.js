@@ -168,15 +168,35 @@ const navBarManager = (() =>{
         return form;
     }
     function insertBeforeAddTask(elem){taskLists.insertBefore(elem, addTask);}
-    function createNewTask(text, id){
+    function createNewTask(task){
         const li = document.createElement('li');
         li.classList.add('task');
-        li.dataset.taskid = id;
+        li.dataset.taskid = task.id;
 
         const div = document.createElement('div');
-        div.innerText = text;
+        div.innerText = task.name;
         const btn = document.createElement('button');
-        btn.innerText = 'Remove';
+        // btn.innerText = 'Remove';
+
+        // Display Active Task
+        div.addEventListener('click',()=>{
+            const active = document.querySelector('.active');
+            if (active === li) return;
+            if (active !== null) active.classList.toggle('active');
+            taskContentManager.clearTaskWindow();
+            taskContentManager.displayTask(task);
+            li.classList.toggle('active');
+        });
+
+        // Delete Task
+        btn.addEventListener('click', ()=>{
+            const taskid = task.id;
+            taskStorage.deleteTaskfromStorage(taskid);
+            delete taskList[taskid];
+            li.remove();
+            taskContentManager.clearTaskWindow();
+        });
+
 
         li.appendChild(div);
         li.appendChild(btn);
@@ -184,7 +204,15 @@ const navBarManager = (() =>{
         return li;
     }
 
-    return {hideAddTask, showAddTask, createForm, insertBeforeAddTask, createNewTask};
+    function initializeNavBar(){
+        for (const k in taskList){
+            const v = taskList[k];
+            const t = createNewTask(v);
+            taskLists.insertBefore(t, addTask);
+        }
+    };
+
+    return {hideAddTask, showAddTask, createForm, insertBeforeAddTask, createNewTask, initializeNavBar};
 })();
 
 
@@ -355,28 +383,8 @@ addTask.addEventListener('click', () => {
         taskStorage.storeTasktoStorage(t);
 
         form.remove();
-        const task = navBarManager.createNewTask(t.name, t.id);
+        const task = navBarManager.createNewTask(t);
         navBarManager.showAddTask();
-
-        // Display Active Task
-        task.firstChild.addEventListener('click',()=>{
-            const active = document.querySelector('.active');
-            if (active === task) return;
-            if (active !== null) active.classList.toggle('active');
-            taskContentManager.clearTaskWindow();
-            taskContentManager.displayTask(t);
-            task.classList.toggle('active');
-        });
-
-        // Delete Task
-        task.lastChild.addEventListener('click', ()=>{
-            const taskid = task.dataset.taskid;
-            taskStorage.deleteTaskfromStorage(taskid);
-            delete taskList[taskid];
-            task.remove();
-            taskContentManager.clearTaskWindow();
-        });
-
 
     });
     navBarManager.insertBeforeAddTask(form);
@@ -418,24 +426,18 @@ const taskStorage = (() => {
             const task = taskList[v['id']];
             task.restore(v['id'],v['name'], v['subTaskid'], v['subTasks']);
 
-            console.log(taskList);
         }
-    }
+    };
 
     return {getTask, storeTasktoStorage, clearTaskStorage, 
         deleteTaskfromStorage, storeTaskStaticID,populateTaskList};
 })();
 
 taskStorage.populateTaskList();
-
+navBarManager.initializeNavBar();
 
 /* TODOs?:
     - add priority functionality
     - add date functionality
     - strike through when done
-    - persistent storage
-        - save to storage
-        - on refresh load up storage and assign it to taskList
-        - assign each task its event listener
-        - stringify
 */

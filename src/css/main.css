@@ -1,3 +1,13 @@
+:root {
+    font-family: 'Caveat', cursive;
+    font-size: 2em;
+
+    --concrete-color: #c5baaa;
+    --craft-color: #806d61;
+    --bright-brick-color: #ee7828;
+    --graphite-color: #2c2c2c;
+}
+
 body {
     padding: 0px;
     margin: 0px;
@@ -24,20 +34,23 @@ body {
 
 header {
     grid-area: header;
-    background-color: grey;
+    background-color: var(--bright-brick-color);
     display: flex;
     justify-content: center;
     align-items: center;
+
+    color: white;
 }
 
 nav {
-    background-color: aliceblue;
+    background-color: var(--craft-color);
     grid-area: nav;
+
 }
 
 #task{
     grid-area: content;
-    background-color: gray;
+    background-color: var(--concrete-color);
     display: grid;
     grid-template-rows: 100px;
     grid-auto-flow: row;
@@ -48,7 +61,7 @@ nav {
 
 footer {
     grid-area: footer;
-    background-color: grey;
+    background-color: var(--graphite-color);
 }
 
 
