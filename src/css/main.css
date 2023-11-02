@@ -62,7 +62,7 @@ nav {
 }
 
 .subtask input[type=checkbox]{
-    
+
 }
 
 footer {
@@ -95,6 +95,8 @@ ul li button{
 }
 
 
+
+
 #add-task{
     cursor: pointer;
 }
@@ -120,6 +122,18 @@ form {
 
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
+    padding:15px;
+}
+
+form input{
+    border-radius: 8px;
+    background-color: var(--bright-brick-color);
+    border: 1px solid var(--graphite-color);
+}
+
+form input:focus{
+    outline: var(--graphite-color) solid 2px ;
+    padding: 3px;
 }
 
 .form-buttons {
@@ -129,6 +143,11 @@ form {
 
 .form-buttons button{
     flex: 1;
+
+    background-color: var(--concrete-color);
+    border-radius: 15px;
+    cursor: pointer;
+
 }
 
 #form-addsubtask {
