@@ -355,7 +355,7 @@ const taskContentManager = (() =>{
 
         const input = document.createElement('input');
         input.minLength = 1;
-        input.maxLength = 15;
+        // input.maxLength = 15;
         input.placeholder = "Subtask Name";
         input.required = true;
 
